@@ -180,9 +180,23 @@ choice=$( rofi -dmenu -input $dbpath -i -width $width -l $lines -p "rsearch" -ke
 #choice=$( cat $dbpath | dmenu -f -b -i -l $lines -p dsearch )
 
 #remove useless part of the chosen line and call "openfile" function
+#file=${choice#*\ \ }
+#fullname=$inpath/${file#[fd]\ \ }
+#if [[ $choice != "" ]] ; then sudo -u $USER $(openfile "$fullname") ; fi
+
 file=${choice#*\ \ }
-fullname=$inpath/${file#[fd]\ \ }
-if [[ $choice != "" ]] ; then sudo -u $USER $(openfile "$fullname") ; fi
+
+# If we used multiple paths, $file already has a full path
+if [[ $inpath == *" "* ]]; then
+    fullname=${file#[fd]\ \ }
+else
+    fullname=$inpath/${file#[fd]\ \ }
+fi
+
+if [[ -n "$choice" ]]; then
+    sudo -u "$USER" bash -c "$(printf '%q ' openfile "$fullname")"
+fi
+
 
 #if you just used "hidden files" database, use this database to update "home" database to be ready for future calls by sorting out hidden files (containing " \." in their path, and *.default/ files)
 #if [[ $mode == 2 ]] && [[ $interval -gt 0 ]] ; then
